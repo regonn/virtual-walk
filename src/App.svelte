@@ -1,34 +1,68 @@
-<style>
-    main {
-        text-align: center;
-        padding: 1em;
-        max-width: 240px;
-        margin: 0 auto;
+<script>
+    import Register from './Components/Auth/Register.svelte'
+    import GoogleMap from './Components/GoogleMap.svelte'
+    import { Router, Link, Route } from 'svelte-routing'
+    import Login from './Components/Auth/Login.svelte'
+    import { user } from './store.js'
+    import { auth } from './firebase.js'
+
+    const classActive = 'active'
+    const classInactive = 'inactive'
+
+    const handleLogOut = () => {
+        auth.signOut().then(
+            function() {
+                // Sign-out successful.
+                user.set({ ...$user, loggedIn: false })
+                console.log('logout', $user)
+            },
+            function(error) {
+                // An error happened.
+                console.warn('error on logout', error.message)
+            }
+        )
     }
 
-    h1 {
-        color: #ff3e00;
-        text-transform: uppercase;
-        font-size: 4em;
-        font-weight: 100;
-    }
-
-    @media (min-width: 640px) {
-        main {
-            max-width: none;
+    function getProps({ location, href, isPartiallyCurrent, isCurrent }) {
+        const isActive =
+            href === '/' ? isCurrent : isPartiallyCurrent || isCurrent
+        // The object returned here is spread on the anchor element's attributes
+        if (isActive) {
+            return { class: classActive }
         }
+        return { class: classInactive }
     }
-</style>
-
-<script lang="typescript">
-    export let name
 </script>
 
-<main>
-    <h1>Hello {name}!</h1>
-    <p>
-        Visit the
-        <a href="https://svelte.dev/tutorial">Svelte tutorial</a>
-        to learn how to build Svelte apps.
-    </p>
-</main>
+<Router>
+    <ul>
+        <li>
+            <Link to="/" {getProps}>Home</Link>
+        </li>
+        {#if $user.loggedIn}
+            <li>
+                <Link to="google_map" {getProps}>GoogleMap</Link>
+            </li>
+            <li>
+                <a class="inactive" href="/" on:click="{handleLogOut}">
+                    Logout
+                </a>
+            </li>
+        {:else}
+            <li>
+                <Link to="login" {getProps}>Login</Link>
+            </li>
+            <li>
+                <Link to="register" {getProps}>Register</Link>
+            </li>
+        {/if}
+    </ul>
+
+    <Route path="login" component="{Login}" />
+    <Route path="register" component="{Register}" />
+    <Route path="google_map" component="{GoogleMap}" />
+    <Route path="/">
+        <h1>HOME</h1>
+        <p>To view the protected content, register or login to your account</p>
+    </Route>
+</Router>
