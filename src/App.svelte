@@ -34,6 +34,15 @@
     }
 </script>
 
+<svelte:head>
+    <script
+        defer
+        async
+        src=`https://maps.googleapis.com/maps/api/js?key={process.env.GOOGLE_MAP_API_KEY}&callback=initMap`>
+
+    </script>
+</svelte:head>
+
 <Router>
     <ul>
         <li>
