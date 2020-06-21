@@ -146,7 +146,6 @@
                     console.log('Google then', $user)
                     navigate('/google_map')
                 }
-                // ...
             })
             .catch(function(error) {
                 // Handle Errors here.
