@@ -1,38 +1,106 @@
 <style>
-    .full-screen {
-        width: 50vw;
-        height: 50vh;
+    .fill-screen {
+        height: 80vh;
     }
 </style>
 
 <script>
-    import { user } from './../store.js'
+    import { user, situation } from './../store.js'
+    import { db } from './../firebase.js'
 
     let container
-    let map
-    let zoom = 8
-    let center = { lat: -34.397, lng: 150.644 }
+    let point
+    let zoom = 0
 
     import { onMount } from 'svelte'
 
     onMount(async () => {
-        var center = new google.maps.LatLng(35.308191, 139.487196)
-        var opts = {
-            position: center,
-            pov: {
-                heading: 278.3,
-                pitch: 30,
-                zoom: 0,
-            },
-        }
-        var myPano = new google.maps.StreetViewPanorama(container, opts)
-        myPano.setVisible(true)
+        db.collection('users')
+            .doc($user.uid)
+            .get()
+            .then(doc => {
+                point = doc.data()['point']
+
+                var center = new google.maps.LatLng(
+                    point.latitude,
+                    point.longitude
+                )
+                var opts = {
+                    position: center,
+                    pov: {
+                        heading: $situation.heading,
+                        pitch: 0,
+                        zoom: zoom,
+                    },
+                }
+                var myPano = new google.maps.StreetViewPanorama(container, opts)
+                myPano.setVisible(true)
+                const interval = setInterval(function() {
+                    console.log('interval')
+                    if ($situation.status === 'walking') {
+                        console.log('step')
+                        let links = myPano.getLinks()
+                        let target = 0
+                        console.log(links)
+                        let val = 360
+                        let currentPov = myPano.getPov()
+                        links.forEach(function(element, index) {
+                            let ans = Math.abs(
+                                currentPov.heading - element.heading
+                            )
+                            if (val > ans) {
+                                val = ans
+                                target = index
+                            }
+                        })
+                        let heading = links[target].heading
+                        myPano.setPov({
+                            heading: heading,
+                            pitch: 0,
+                        })
+                        myPano.setPano(links[target]['pano'])
+                        situation.set({
+                            status: $situation.status,
+                            heading: heading,
+                        })
+                    } else if ($situation.status === 'turningRight') {
+                        console.log('turn right')
+                        let heading = ($situation.heading + 15) % 360
+                        myPano.setPov({
+                            heading: heading,
+                            pitch: 0,
+                        })
+                        situation.set({
+                            status: $situation.status,
+                            heading: heading,
+                        })
+                    } else if ($situation.status === 'turningLeft') {
+                        console.log('turn left')
+                        let heading = ($situation.heading + 345) % 360
+                        myPano.setPov({
+                            heading: heading,
+                            pitch: 0,
+                        })
+                        situation.set({
+                            status: $situation.status,
+                            heading: heading,
+                        })
+                    }
+                }, 20000)
+            })
+        db.collection('conditions')
+            .doc($user.uid)
+            .onSnapshot(doc => {
+                let { status } = doc.data()
+                console.log(status)
+                situation.set({ status, heading: $situation.heading })
+            })
     })
 </script>
 
-<h1>Welcome</h1>
+<ul>
+    <li>status: {$situation.status}</li>
+    <li>heading: {$situation.heading}</li>
+</ul>
+<div class="columns mt-2"><div class="column fill-screen" bind:this="{container}"></div></div>
 
-<p>Your email address is {$user.email}</p>
-
-<p>Your protected content here.</p>
-<div class="full-screen" bind:this="{container}"></div>

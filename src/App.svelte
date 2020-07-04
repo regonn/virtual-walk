@@ -1,4 +1,5 @@
 <script>
+    import './mystyles.scss'
     import Register from './Components/Auth/Register.svelte'
     import GoogleMap from './Components/GoogleMap.svelte'
     import { Router, Link, Route } from 'svelte-routing'
@@ -45,9 +46,6 @@
 
 <Router>
     <ul>
-        <li>
-            <Link to="/" {getProps}>Home</Link>
-        </li>
         {#if $user.loggedIn}
             <li>
                 <Link to="google_map" {getProps}>GoogleMap</Link>
@@ -59,7 +57,7 @@
             </li>
         {:else}
             <li>
-                <Link to="login" {getProps}>Login</Link>
+                <Link to="/" {getProps}>Home</Link>
             </li>
             <li>
                 <Link to="register" {getProps}>Register</Link>
@@ -67,11 +65,7 @@
         {/if}
     </ul>
 
-    <Route path="login" component="{Login}" />
     <Route path="register" component="{Register}" />
     <Route path="google_map" component="{GoogleMap}" />
-    <Route path="/">
-        <h1>HOME</h1>
-        <p>To view the protected content, register or login to your account</p>
-    </Route>
+    <Route path="/" component="{Login}" />
 </Router>
