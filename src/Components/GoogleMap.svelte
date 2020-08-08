@@ -7,6 +7,7 @@
 <script>
     import { user, situation } from './../store.js'
     import { db } from './../firebase.js'
+    import firebase from 'firebase/app'
 
     let container
     let point
@@ -20,6 +21,21 @@
             .get()
             .then(doc => {
                 point = doc.data()['point']
+
+                if (!point) {
+                    console.log('undef')
+                    // Mt. Fuji
+                    point = new firebase.firestore.GeoPoint(
+                                35.3606322,
+                                138.7273284
+                            )
+                    db.collection('users')
+                        .doc($user.uid)
+                        .update({
+                            point: point,
+                        })
+                }
+
 
                 var center = new google.maps.LatLng(
                     point.latitude,
@@ -86,7 +102,7 @@
                             heading: heading,
                         })
                     }
-                }, 20000)
+                }, 2000)
             })
         db.collection('conditions')
             .doc($user.uid)
@@ -102,5 +118,6 @@
     <li>status: {$situation.status}</li>
     <li>heading: {$situation.heading}</li>
 </ul>
-<div class="columns mt-2"><div class="column fill-screen" bind:this="{container}"></div></div>
-
+<div class="columns mt-2">
+    <div class="column fill-screen" bind:this="{container}"></div>
+</div>
