@@ -1,3 +1,10 @@
+<style>
+    .navbar-title {
+        font-family: 'VT323', monospace;
+        font-size: 2rem;
+    }
+</style>
+
 <script>
     import './mystyles.scss'
     import Register from './Components/Auth/Register.svelte'
@@ -7,17 +14,17 @@
     import { user } from './store.js'
     import { auth } from './firebase.js'
 
-    const classActive = 'active'
-    const classInactive = 'inactive'
+    const classActive = 'active navbar-item'
+    const classInactive = 'inactive navbar-item'
 
     const handleLogOut = () => {
         auth.signOut().then(
-            function() {
+            function () {
                 // Sign-out successful.
                 user.set({ ...$user, loggedIn: false })
                 console.log('logout', $user)
             },
-            function(error) {
+            function (error) {
                 // An error happened.
                 console.warn('error on logout', error.message)
             }
@@ -40,32 +47,49 @@
         defer
         async
         src=`https://maps.googleapis.com/maps/api/js?key={process.env.GOOGLE_MAP_API_KEY}&callback=initMap`>
-
     </script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
+        rel="stylesheet"
+    />
 </svelte:head>
-
 <Router>
-    <ul>
+    <nav class="navbar">
+        <div class="navbar-brand">
+            <a class="navbar-item navbar-title" href="/" style="">
+                Virtual Walker
+            </a>
+        </div>
         {#if $user.loggedIn}
-            <li>
-                <Link to="google_map" {getProps}>GoogleMap</Link>
-            </li>
-            <li>
-                <a class="inactive" href="/" on:click="{handleLogOut}">
-                    Logout
-                </a>
-            </li>
+            <div class="navbar-menu is-active">
+                <div class="navbar-start">
+                    <a
+                        class="inactive navbar-item"
+                        href="/"
+                        on:click="{handleLogOut}"
+                    >
+                        Logout
+                    </a>
+                </div>
+            </div>
         {:else}
-            <li>
-                <Link to="/" {getProps}>Home</Link>
-            </li>
-            <li>
-                <Link to="register" {getProps}>Register</Link>
-            </li>
+            <div class="navbar-menu is-active">
+                <div class="navbar-start">
+                    <Link class="woo" to="/" getProps="{getProps}">Home</Link>
+                    <Link to="register" getProps="{getProps}">Register</Link>
+                </div>
+            </div>
         {/if}
-    </ul>
-
-    <Route path="register" component="{Register}" />
-    <Route path="google_map" component="{GoogleMap}" />
-    <Route path="/" component="{Login}" />
+    </nav>
+    <section class="section">
+        <div class="container">
+            <div class="columns">
+                <div class="column">
+                    <Route path="register" component="{Register}" />
+                    <Route path="google_map" component="{GoogleMap}" />
+                    <Route path="/" component="{Login}" />
+                </div>
+            </div>
+        </div>
+    </section>
 </Router>
