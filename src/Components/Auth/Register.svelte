@@ -1,5 +1,4 @@
 <style>
-
 </style>
 
 <script>
@@ -9,7 +8,7 @@
 
     const handleGoogleLogin = () => {
         auth.signInWithPopup(provider)
-            .then(function(result) {
+            .then(function (result) {
                 // This gives you a Google Access Token. You can use it to access the Google API.
                 var token = result.credential.accessToken
                 // The signed-in user info.
@@ -17,14 +16,12 @@
 
                 if (firebaseuser) {
                     let { email } = firebaseuser
-                    console.log('first', $user)
                     user.set({ ...$user, loggedIn: true, email })
-                    console.log('then', $user)
                     navigate('/google_map')
                 }
                 // ...
             })
-            .catch(function(error) {
+            .catch(function (error) {
                 // Handle Errors here.
                 var errorCode = error.code
                 var errorMessage = error.message
@@ -42,16 +39,15 @@
             elements: { email, password },
         },
     }) => {
-        auth.createUserWithEmailAndPassword(email.value, password.value).catch(
-            error => alert(error.message)
-        )
+        auth.createUserWithEmailAndPassword(
+            email.value,
+            password.value
+        ).catch((error) => alert(error.message))
         let firebaseUser = auth.currentUser
 
         if (firebaseUser) {
             let { email } = firebaseUser
-            console.log('first', $user)
             user.set({ ...$user, loggedIn: true, email })
-            console.log('then', $user)
             navigate('/google_map')
         }
     }

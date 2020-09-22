@@ -14,6 +14,8 @@
     import { user } from './store.js'
     import { auth } from './firebase.js'
 
+    export const api_key = process.env.GOOGLE_MAP_API_KEY
+
     const classActive = 'active navbar-item'
     const classInactive = 'inactive navbar-item'
 
@@ -22,7 +24,6 @@
             function () {
                 // Sign-out successful.
                 user.set({ ...$user, loggedIn: false })
-                console.log('logout', $user)
             },
             function (error) {
                 // An error happened.
@@ -46,7 +47,7 @@
     <script
         defer
         async
-        src=`https://maps.googleapis.com/maps/api/js?key={process.env.GOOGLE_MAP_API_KEY}&callback=initMap`>
+        src="https://maps.googleapis.com/maps/api/js?key={api_key}&callback=initMap">
     </script>
     <link
         href="https://fonts.googleapis.com/css2?family=VT323&display=swap"
@@ -75,7 +76,7 @@
         {:else}
             <div class="navbar-menu is-active">
                 <div class="navbar-start">
-                    <Link class="woo" to="/" getProps="{getProps}">Home</Link>
+                    <Link to="/" getProps="{getProps}">Home</Link>
                     <Link to="register" getProps="{getProps}">Register</Link>
                 </div>
             </div>
