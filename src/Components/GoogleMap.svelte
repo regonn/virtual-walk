@@ -8,12 +8,73 @@
     import { user, situation } from './../store.js'
     import { db } from './../firebase.js'
     import firebase from 'firebase/app'
+    import Search from './Search.svelte'
+    import SearchResults from './SearchResults.svelte'
+    import LoadingIndicator from './LoadingIndicator.svelte'
 
     let container
     let point
     let zoom = 0
+    let searchQuery = ''
+    let searchTerm = null
+    let searchResults = []
+    let currentPano = null
+    let isNoContents = false
+    let isLoading = false
 
     import { onMount } from 'svelte'
+
+    function handleSubmit() {
+        isLoading = true
+        searchTerm = searchQuery.trim()
+        searchResults = []
+        isNoContents = false
+
+        if (!searchTerm) return
+
+        searchUnsplash()
+    }
+
+    function handleClick(point) {
+        let warpPoint = new firebase.firestore.GeoPoint(
+            point.lat(),
+            point.lng()
+        )
+
+        db.collection('users').doc($user.uid).update({
+            point: warpPoint,
+        })
+
+        currentPano.setPosition(
+            new google.maps.LatLng(point.lat(), point.lng())
+        )
+    }
+
+    function searchUnsplash() {
+        var center = new google.maps.LatLng(point.latitude, point.longitude)
+
+        var request = {
+            query: searchTerm,
+            fields: ['name', 'geometry'],
+        }
+
+        var map = new google.maps.Map(document.getElementById('map'), {
+            center: center,
+            zoom: 15,
+        })
+
+        var service = new google.maps.places.PlacesService(map)
+
+        service.findPlaceFromQuery(request, function (results, status) {
+            if (status === google.maps.places.PlacesServiceStatus.OK) {
+                searchResults = results
+            } else {
+                isNoContents = true
+            }
+        })
+
+        isLoading = false
+    }
 
     function convertStatus(status) {
         switch (status) {
@@ -61,6 +122,7 @@
                     },
                 }
                 var myPano = new google.maps.StreetViewPanorama(container, opts)
+                currentPano = myPano
                 myPano.setVisible(true)
                 const interval = setInterval(function () {
                     if ($situation.status === 'walking') {
@@ -127,6 +189,20 @@
     })
 </script>
 
+<Search bind:query="{searchQuery}" handleSubmit="{handleSubmit}" />
+
+{#if isLoading}
+    <div class="loading-indicator">
+        <LoadingIndicator />
+    </div>
+{:else}
+    <SearchResults
+        results="{searchResults}"
+        handleClick="{handleClick}"
+        isNoContents="{isNoContents}"
+    />
+{/if}
+
 <div class="field is-grouped is-grouped-multiline">
     <div class="control">
         <div class="tags has-addons">
@@ -145,3 +221,5 @@
 <div class="columns mt-2">
     <div class="column fill-screen" bind:this="{container}"></div>
 </div>
+
+<div id="map"></div>
