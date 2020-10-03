@@ -7,7 +7,6 @@
 
 <script>
     import './mystyles.scss'
-    import Register from './Components/Auth/Register.svelte'
     import GoogleMap from './Components/GoogleMap.svelte'
     import { Router, Link, Route } from 'svelte-routing'
     import Login from './Components/Auth/Login.svelte'
@@ -73,20 +72,12 @@
                     </a>
                 </div>
             </div>
-        {:else}
-            <div class="navbar-menu is-active">
-                <div class="navbar-start">
-                    <Link to="/" getProps="{getProps}">Home</Link>
-                    <Link to="register" getProps="{getProps}">Register</Link>
-                </div>
-            </div>
         {/if}
     </nav>
     <section class="section">
         <div class="container">
             <div class="columns">
                 <div class="column">
-                    <Route path="register" component="{Register}" />
                     <Route path="google_map" component="{GoogleMap}" />
                     <Route path="/" component="{Login}" />
                 </div>
