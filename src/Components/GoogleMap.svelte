@@ -17,9 +17,10 @@
     let zoom = 0
     let searchQuery = ''
     let searchTerm = null
-    let searchResults = []
+    let searchResult = null
     let currentPano = null
     let isNoContents = false
+    let isMultiple = false
     let isLoading = false
 
     import { onMount } from 'svelte'
@@ -27,8 +28,9 @@
     function handleSubmit() {
         isLoading = true
         searchTerm = searchQuery.trim()
-        searchResults = []
+        searchResult = null
         isNoContents = false
+        isMultiple = false
 
         if (!searchTerm) return
 
@@ -64,10 +66,38 @@
         })
 
         var service = new google.maps.places.PlacesService(map)
+        var panoService = new google.maps.StreetViewService()
 
         service.findPlaceFromQuery(request, function (results, status) {
             if (status === google.maps.places.PlacesServiceStatus.OK) {
-                searchResults = results
+                if (results.length > 1) {
+                    isMultiple = true
+                } else {
+                    var placeResult = results[0]
+                    var placeName = placeResult.name
+                    var location = placeResult.geometry.location
+                    var panoRequest = {
+                        location: new google.maps.LatLng(
+                            location.lat(),
+                            location.lng()
+                        ),
+                        preference: 'nearest',
+                    }
+                    panoService.getPanorama(panoRequest, function (
+                        panoResult,
+                        status
+                    ) {
+                        if (status == google.maps.StreetViewStatus.OK) {
+                            searchResult = {
+                                name: placeName,
+                                location: panoResult.location.latLng,
+                                links: panoResult.links,
+                            }
+                        } else {
+                            isNoContents = true
+                        }
+                    })
+                }
             } else {
                 isNoContents = true
             }
@@ -197,9 +227,10 @@
     </div>
 {:else}
     <SearchResults
-        results="{searchResults}"
+        result="{searchResult}"
         handleClick="{handleClick}"
         isNoContents="{isNoContents}"
+        isMultiple="{isMultiple}"
     />
 {/if}
 
