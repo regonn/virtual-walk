@@ -121,6 +121,21 @@
         }
     }
 
+    function convertColorStatus(status) {
+        switch (status) {
+            case 'resting':
+                return 'danger'
+            case 'walking':
+                return 'success'
+            case 'turningRight':
+                return 'primary'
+            case 'turningLeft':
+                return 'warning'
+            default:
+                return 'dark'
+        }
+    }
+
     onMount(async () => {
         db.collection('users')
             .doc($user.uid)
@@ -180,6 +195,7 @@
                             status: $situation.status,
                             heading: heading,
                             statusJa: convertStatus($situation.status),
+                            statusColor: convertColorStatus($situation.status),
                         })
                     } else if ($situation.status === 'turningRight') {
                         let heading = ($situation.heading + 20) % 360
@@ -191,6 +207,7 @@
                             status: $situation.status,
                             heading: heading,
                             statusJa: convertStatus($situation.status),
+                            statusColor: convertColorStatus($situation.status),
                         })
                     } else if ($situation.status === 'turningLeft') {
                         let heading = ($situation.heading + 340) % 360
@@ -202,6 +219,7 @@
                             status: $situation.status,
                             heading: heading,
                             statusJa: convertStatus($situation.status),
+                            statusColor: convertColorStatus($situation.status),
                         })
                     }
                 }, 2000)
@@ -214,6 +232,7 @@
                     status,
                     heading: $situation.heading,
                     statusJa: convertStatus(status),
+                    statusColor: convertColorStatus($situation.status),
                 })
             })
     })
@@ -236,16 +255,18 @@
 
 <div class="field is-grouped is-grouped-multiline">
     <div class="control">
-        <div class="tags has-addons">
+        <div class="tags has-addons are-large">
             <span class="tag is-dark">状態</span>
-            <span class="tag is-info">{$situation.statusJa}</span>
+            <span
+                class="tag is-{$situation.statusColor}"
+            >{$situation.statusJa}</span>
         </div>
     </div>
 
     <div class="control">
-        <div class="tags has-addons">
+        <div class="tags has-addons are-large">
             <span class="tag is-dark">方角</span>
-            <span class="tag is-success">{$situation.heading}°</span>
+            <span class="tag is-info">{$situation.heading}°</span>
         </div>
     </div>
 </div>
