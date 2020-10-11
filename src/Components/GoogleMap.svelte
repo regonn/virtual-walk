@@ -11,6 +11,7 @@
     import Search from './Search.svelte'
     import SearchResults from './SearchResults.svelte'
     import LoadingIndicator from './LoadingIndicator.svelte'
+    import Qr from './Qr.svelte'
 
     let container
     let point
@@ -261,21 +262,30 @@
             </div>
         </article>
     {:else}
-        <Search bind:query="{searchQuery}" handleSubmit="{handleSubmit}" />
+        <div class="columns">
+            <div class="column is-two-thirds">
+                <Search
+                    bind:query="{searchQuery}"
+                    handleSubmit="{handleSubmit}"
+                />
 
-        {#if isLoading}
-            <div class="loading-indicator">
-                <LoadingIndicator />
+                {#if isLoading}
+                    <div class="loading-indicator">
+                        <LoadingIndicator />
+                    </div>
+                {:else}
+                    <SearchResults
+                        result="{searchResult}"
+                        handleClick="{handleClick}"
+                        isNoContents="{isNoContents}"
+                        isMultiple="{isMultiple}"
+                    />
+                {/if}
             </div>
-        {:else}
-            <SearchResults
-                result="{searchResult}"
-                handleClick="{handleClick}"
-                isNoContents="{isNoContents}"
-                isMultiple="{isMultiple}"
-            />
-        {/if}
-
+            <div class="column">
+                <Qr />
+            </div>
+        </div>
         <div class="field is-grouped is-grouped-multiline">
             <div class="control">
                 <div class="tags has-addons are-large">
