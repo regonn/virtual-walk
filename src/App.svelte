@@ -68,7 +68,7 @@
                         href="/"
                         on:click="{handleLogOut}"
                     >
-                        Logout
+                        Logout({$user.email})
                     </a>
                 </div>
             </div>
