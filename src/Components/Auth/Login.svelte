@@ -3,8 +3,10 @@
 
 <script>
     import { auth, provider } from './../../firebase.js'
+    import firebase from 'firebase/app'
     import { navigate } from 'svelte-routing'
     import { user } from './../../store.js'
+    import { db } from './../../firebase.js'
 
     const handleGoogleLogin = () => {
         auth.signInWithPopup(provider)
@@ -17,7 +19,34 @@
                 if (firebaseuser) {
                     let { email, uid } = firebaseuser
                     user.set({ ...$user, loggedIn: true, email, uid })
-                    navigate('/google_map')
+                    db.collection('users')
+                        .doc(uid)
+                        .get()
+                        .then((doc) => {
+                            if (doc.data() == undefined) {
+                                let point = new firebase.firestore.GeoPoint(
+                                    35.3606322,
+                                    138.7273284
+                                )
+                                db.collection('users')
+                                    .doc(uid)
+                                    .set({
+                                        point: point,
+                                    })
+                                    .then(() => {
+                                        db.collection('conditions')
+                                            .doc(uid)
+                                            .set({
+                                                status: 'resting',
+                                            })
+                                            .then(() => {
+                                                navigate('/google_map')
+                                            })
+                                    })
+                            } else {
+                                navigate('/google_map')
+                            }
+                        })
                 }
             })
             .catch(function (error) {
