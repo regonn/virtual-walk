@@ -23,7 +23,6 @@
     let isNoContents = false
     let isMultiple = false
     let isLoading = false
-    let noUser = false
 
     import { onMount } from 'svelte'
 
@@ -144,9 +143,6 @@
                 .doc($user.uid)
                 .get()
                 .then((doc) => {
-                    if (doc.data() == undefined) {
-                        noUser = true
-                    }
                     point = doc.data()['point']
 
                     if (!point) {
@@ -157,6 +153,9 @@
                         )
                         db.collection('users').doc($user.uid).update({
                             point: point,
+                        })
+                        db.collection('conditions').doc($user.uid).set({
+                            status: 'resting',
                         })
                     }
 
@@ -200,6 +199,16 @@
                                 pitch: 0,
                             })
                             myPano.setPano(links[target]['pano'])
+                            let latLng = myPano.location.latLng
+                            let next_point = new firebase.firestore.GeoPoint(
+                                latLng.lat(),
+                                latLng.lng()
+                            )
+
+                            db.collection('users').doc($user.uid).update({
+                                point: next_point,
+                            })
+
                             situation.set({
                                 status: $situation.status,
                                 heading: heading,
@@ -247,7 +256,7 @@
                         status,
                         heading: $situation.heading,
                         statusJa: convertStatus(status),
-                        statusColor: convertColorStatus($situation.status),
+                        statusColor: convertColorStatus(status),
                     })
                 })
         }
@@ -255,60 +264,49 @@
 </script>
 
 {#if $user.loggedIn}
-    {#if noUser}
-        <article class="message is-warning">
-            <div class="message-body">
-                スマホアプリ側でユーザ登録がされていません。登録後再度ログインしてください。
-            </div>
-        </article>
-    {:else}
-        <div class="columns">
-            <div class="column is-two-thirds">
-                <Search
-                    bind:query="{searchQuery}"
-                    handleSubmit="{handleSubmit}"
+    <div class="columns">
+        <div class="column is-two-thirds">
+            <Search bind:query="{searchQuery}" handleSubmit="{handleSubmit}" />
+
+            {#if isLoading}
+                <div class="loading-indicator">
+                    <LoadingIndicator />
+                </div>
+            {:else}
+                <SearchResults
+                    result="{searchResult}"
+                    handleClick="{handleClick}"
+                    isNoContents="{isNoContents}"
+                    isMultiple="{isMultiple}"
                 />
-
-                {#if isLoading}
-                    <div class="loading-indicator">
-                        <LoadingIndicator />
-                    </div>
-                {:else}
-                    <SearchResults
-                        result="{searchResult}"
-                        handleClick="{handleClick}"
-                        isNoContents="{isNoContents}"
-                        isMultiple="{isMultiple}"
-                    />
-                {/if}
-            </div>
-            <div class="column">
-                <Qr />
+            {/if}
+        </div>
+        <div class="column">
+            <Qr />
+        </div>
+    </div>
+    <div class="field is-grouped is-grouped-multiline">
+        <div class="control">
+            <div class="tags has-addons are-large">
+                <span class="tag is-dark">状態</span>
+                <span
+                    class="tag is-{$situation.statusColor}"
+                >{$situation.statusJa}</span>
             </div>
         </div>
-        <div class="field is-grouped is-grouped-multiline">
-            <div class="control">
-                <div class="tags has-addons are-large">
-                    <span class="tag is-dark">状態</span>
-                    <span
-                        class="tag is-{$situation.statusColor}"
-                    >{$situation.statusJa}</span>
-                </div>
-            </div>
 
-            <div class="control">
-                <div class="tags has-addons are-large">
-                    <span class="tag is-dark">方角</span>
-                    <span class="tag is-info">{$situation.heading}°</span>
-                </div>
+        <div class="control">
+            <div class="tags has-addons are-large">
+                <span class="tag is-dark">方角</span>
+                <span class="tag is-info">{$situation.heading}°</span>
             </div>
         </div>
-        <div class="columns mt-2">
-            <div class="column fill-screen" bind:this="{container}"></div>
-        </div>
+    </div>
+    <div class="columns mt-2">
+        <div class="column fill-screen" bind:this="{container}"></div>
+    </div>
 
-        <div id="map"></div>
-    {/if}
+    <div id="map"></div>
 {:else}
     <article class="message is-warning">
         <div class="message-body">
