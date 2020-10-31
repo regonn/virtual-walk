@@ -5,6 +5,8 @@ import livereload from 'rollup-plugin-livereload'
 import { terser } from 'rollup-plugin-terser'
 import dotenv from 'rollup-plugin-dotenv'
 import postcss from 'rollup-plugin-postcss'
+import autoPreprocess from 'svelte-preprocess';
+import typescript from '@rollup/plugin-typescript'
 
 const production = !process.env.ROLLUP_WATCH
 
@@ -26,7 +28,9 @@ export default {
             css: (css) => {
                 css.write('public/build/bundle.css')
             },
+            preprocess: autoPreprocess()
         }),
+        
 
         postcss(),
 
@@ -40,6 +44,7 @@ export default {
             dedupe: ['svelte'],
         }),
         commonjs(),
+		typescript({ sourceMap: !production }),
 
         // In dev mode, call `npm run start` once
         // the bundle has been generated
