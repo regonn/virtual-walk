@@ -12,13 +12,13 @@
         auth.signInWithPopup(provider)
             .then(function (result) {
                 // This gives you a Google Access Token. You can use it to access the Google API.
-                var token = result.credential.accessToken
+                var idToken = result.credential.idToken
                 // The signed-in user info.
                 var firebaseuser = result.user
 
                 if (firebaseuser) {
                     let { email, uid } = firebaseuser
-                    user.set({ ...$user, loggedIn: true, email, uid })
+                    user.set({ ...$user, loggedIn: true, email, uid, idToken })
                     db.collection('users')
                         .doc(uid)
                         .get()

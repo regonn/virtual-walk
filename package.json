@@ -37,6 +37,7 @@
   "dependencies": {
     "bulma": "^0.9.1",
     "node-sass": "^4.14.1",
+    "svelte-qrcode": "0.0.2",
     "svelte-routing": "^1.4.2"
   }
 }

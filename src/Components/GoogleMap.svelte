@@ -282,7 +282,7 @@
             {/if}
         </div>
         <div class="column">
-            <Qr />
+            <Qr idToken="{$user.idToken}"/>
         </div>
     </div>
     <div class="field is-grouped is-grouped-multiline">
