@@ -282,7 +282,9 @@
             {/if}
         </div>
         <div class="column">
-            <Qr idToken="{$user.idToken}"/>
+            <!-- // ポーズ判定アプリ側でid_tokenでのログインができるようになったら利用する -->
+            <!-- <Qr idToken="{$user.idToken}"/> -->
+            <Qr />
         </div>
     </div>
     <div class="field is-grouped is-grouped-multiline">

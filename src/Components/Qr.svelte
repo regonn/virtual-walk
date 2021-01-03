@@ -1,15 +1,18 @@
 <script>
     import QrCode from "svelte-qrcode"
     import { onMount } from 'svelte';
-    export let idToken
+    // ポーズ判定アプリ側でid_tokenでのログインができるようになったら利用する
+    // export let idToken
     let url = null
     onMount(async () => {
-        url = 'https://virtual-walker-pose-estimate.web.app/?id_token=' + idToken
+        // ポーズ判定アプリ側でid_tokenでのログインができるようになったら利用する
+        // url = 'https://virtual-walker-pose-estimate.web.app/?id_token=' + idToken
+        url = 'https://virtual-walker-pose-estimate.web.app'
     })
 </script>
 
 <h4>操作用連携アプリは<a href="{url}" target="_blank">こちら</a></h4>
 
 {#if url}
-    <QrCode value="{url}" size=300/>
+    <QrCode value="{url}" size=100/>
 {/if}
